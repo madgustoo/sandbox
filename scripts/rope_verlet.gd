@@ -60,7 +60,6 @@ func apply_constraints():
 		var current_segment = rope_segments[i]
 		var next_segment = rope_segments[i+1]
 		
-		# TODO Check if it gives the same distance if you substract from next_segment
 		var distance = (current_segment.current_position - next_segment.current_position).length()
 
 func _draw() -> void:
