@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bip5rx0purm35"]
+
+[ext_resource type="Script" uid="uid://bm83prr1sat6s" path="res://scripts/rope_verlet.gd" id="1_0756u"]
+
+[node name="Node2D" type="Node2D" unique_id=1216721653]
+script = ExtResource("1_0756u")
+rope_segment_length = 10.0
+
+[node name="Line2D" type="Line2D" parent="." unique_id=552446880]
+width = 0.5
+default_color = Color(1, 0.5137255, 1, 1)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=29768790]
+zoom = Vector2(2, 2)
