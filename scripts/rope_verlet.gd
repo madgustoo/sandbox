@@ -33,16 +33,6 @@ func _ready() -> void:
 	points.resize(number_of_rope_segments)
 
 func _process(delta: float) -> void:
-	# Keep first point attached to the mouse
-	var start_position := get_global_mouse_position()
-	# var first_rope_segment = rope_segments[0]
-	# first_rope_segment.current_position = get_global_mouse_position()
-	
-	# Follow the cursor by updating all of the points y position at the same time
-	for i in range(number_of_rope_segments):
-		rope_segments[i].current_position = start_position
-		start_position.y += rope_segment_length
-	
 	draw_rope()
 	
 func draw_rope() -> void:
@@ -62,9 +52,16 @@ func simulate(delta: float) -> void:
 # Apply constraints so the rope segments stay the right distance apart
 func apply_constraints():
 	# Keep first point attached to the mouse
-	# var first_rope_segment = rope_segments[0]
-	# first_rope_segment.current_position = get_global_mouse_position()
-	pass
+	var first_rope_segment = rope_segments[0]
+	first_rope_segment.current_position = get_global_mouse_position()
+	
+	# (len - 1) because we're going to be looking one step ahead
+	for i in range(len(rope_segments) - 1):
+		var current_segment = rope_segments[i]
+		var next_segment = rope_segments[i+1]
+		
+		# TODO Check if it gives the same distance if you substract from next_segment
+		var distance = (current_segment.current_position - next_segment.current_position).length()
 
 func _draw() -> void:
 	draw_polyline(points, Color.BROWN)
