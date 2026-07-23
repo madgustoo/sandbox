@@ -2,25 +2,12 @@
 
 [ext_resource type="Script" uid="uid://bm83prr1sat6s" path="res://scripts/rope_verlet.gd" id="1_0756u"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_uj1a8"]
-size = Vector2(16, 16)
-
 [node name="Node2D" type="Node2D" unique_id=1216721653]
 script = ExtResource("1_0756u")
 number_of_rope_segments = 150
-dampening = 0.94
+dampening = 0.96
+collision_mask = 2
 
 [node name="Line2D" type="Line2D" parent="." unique_id=552446880]
 width = 0.5
 default_color = Color(1, 0.5137255, 1, 1)
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=29768790]
-zoom = Vector2(6, 6)
-
-[node name="Polygon2D" type="Polygon2D" parent="." unique_id=1107233341]
-color = Color(0.7490196, 1, 1, 1)
-polygon = PackedVector2Array(-48, -32, -32, -32, -32, -16, -48, -16)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Polygon2D" unique_id=149972079]
-position = Vector2(-40, -24)
-shape = SubResource("RectangleShape2D_uj1a8")
