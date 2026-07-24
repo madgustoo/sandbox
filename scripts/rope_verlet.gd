@@ -23,7 +23,7 @@ class RopeSegment:
 @export_flags_2d_physics var collision_mask = 1 # Where to look for collisions (detect)
 @export var collision_radius = 0.1
 @export var bounce_factor = 0.1
-@export var collection_clamp_amount = 0.1
+# @export var collection_clamp_amount = 0.1
 
 @export var collision_segment_interval = 2
 
@@ -127,44 +127,61 @@ func handle_collisions() -> void:
 	for i in range(1, number_of_rope_segments):
 		var rope_segment = rope_segments[i]
 		var velocity = rope_segment.current_position - rope_segment.last_position
-		
-		# Position the collision query over the rope segment to check wether the segment overlaps another physic object
+
+		# Position the collision query over the rope segment to check whether
+		# the segment overlaps another physics object
 		collision_query.transform = Transform2D(
 			0.0,
 			rope_segment.current_position
 		)
-		
-		var colliders := space_state.intersect_shape(collision_query)
-		
-		for result in colliders:
-			var collider := result["collider"] as CollisionObject2D
-			# print("Segment ", i, " collided with: ", collider)
-		
-			# For each collider, returns the nearest collision info intersecting the collision_query
-			var nearest_collision := space_state.get_rest_info(collision_query)
-					
-			if nearest_collision:
-				var hit_point = nearest_collision.get("point")
-				# Distance between current rope segment and closest collision point from the collision_query
-				var distance = (rope_segment.current_position - hit_point).length()
-			
-				if (distance < collision_radius):
-					# The normal (direction) to push out the rope segment from the collider
-					var normal = (rope_segment.current_position - hit_point).normalized() 
-					if (normal == Vector2.ZERO):
-						# Fallback method for this edge case where the normal is (0,0)
-						# calculate the normal based on the collider's center instead
-						# normal = (rope.current_position - co) 
-						pass
-					
-					# Now we actually resolve the overlap: we push the segment out of the collider
-					# How much the segment overlapped with the collider
-					var depth = collision_radius - distance;
-					# Move the current rope segment out of the collider
-					rope_segment.current_position += normal * depth
-					
-		rope_segment.last_position = rope_segment.current_position - velocity
-			
+
+		# Returns the nearest collision information intersecting the collision query
+		var nearest_collision := space_state.get_rest_info(collision_query)
+
+		if nearest_collision.is_empty():
+			continue
+
+		var hit_point: Vector2 = nearest_collision["point"]
+		var normal: Vector2 = nearest_collision["normal"]
+		var collider := instance_from_id(
+			nearest_collision["collider_id"]
+		) as CollisionObject2D
+
+		# Distance between the current rope segment and the closest collision point
+		var distance = (
+			rope_segment.current_position - hit_point
+		).length()
+
+		if distance < collision_radius:
+			# The normal is the direction used to push the rope segment
+			# out of the collider
+			if normal.is_zero_approx():
+				pass
+				# Fallback method for this edge case where the normal is (0, 0)
+				# Calculate the normal based on the collider's center instead
+				normal = (
+					rope_segment.current_position -
+					collider.global_position
+				).normalized()
+
+			# Now we actually resolve the overlap:
+			# push the segment out of the collider
+
+			# How much the segment overlapped with the collider
+			var depth = collision_radius - distance
+
+			# Move the current rope segment out of the collider
+			rope_segment.current_position += normal * depth
+
+			# Add a bounce / acts more like a stickiness variable
+			# The higher the bounce_factor, the more slippery the rope appears
+			# The lower the bounce_factor, the more it appears to stick
+			velocity = velocity.bounce(normal) * bounce_factor
+
+		rope_segment.last_position = (
+			rope_segment.current_position - velocity
+		)
+
 #func _draw() -> void:
 	#for rope_segment in rope_segments:
 		#draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, 1.0)
