@@ -92,12 +92,16 @@ func apply_constraints():
 	var first_rope_segment = rope_segments[0]
 	first_rope_segment.current_position = get_global_mouse_position()
 	
-	# (len - 1) because we're going to be looking one step ahead
+	# (len - 1) because we're going to be looking one step ahead, skips the last point because last point doesn't have a next
 	for i in range(len(rope_segments) - 1):
 		var current_segment = rope_segments[i]
 		var next_segment = rope_segments[i+1]
 		
+		#var distance = current_segment.current_position.distance_to(next_segment.current_position)
 		var distance = (current_segment.current_position - next_segment.current_position).length()
+
+		# This is the difference our constraint fixes, because each point needs to be a certain distance apart
+		# So the verlet integration constraint comes and fixes this (assures we keep same distance between all points)
 		var difference = distance - rope_segment_length
 		
 		# if the difference is greater than 0, then the rope is too stretched out
