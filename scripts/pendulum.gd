@@ -40,7 +40,7 @@ func _ready() -> void:
 	set_start_position(global_position, end_position)
 	
 func process_velocity(delta: float) -> void:
-	angular_velocity = ((-gravity.y * delta) / arm_length) * sin(angle)
+	angular_accleration = ((-gravity.y * delta) / arm_length) * sin(angle)
 	angular_velocity += angular_accleration
 	angular_velocity *= dampening
 	angle += angular_velocity
@@ -51,20 +51,18 @@ func process_velocity(delta: float) -> void:
 func add_angular_velocity(force: float) -> void:
 	angular_velocity += force
 	
-func game_input()->void:
-	var dir:float = 0
-	if Input.is_action_just_pressed("ui_right"):
-		dir += 1
-	elif Input.is_action_just_pressed("ui_left"):
-		dir -= 1
-	add_angular_velocity(dir * 0.02)
+func game_input() -> void:
+	var direction := Input.get_axis("ui_left", "ui_right")
+	if direction:
+		print("direction: ", direction)
+		add_angular_velocity(direction * 0.02)
 
 func _draw() -> void:
 	var point := end_position - pivot_point
 	draw_line(Vector2.ZERO, point, Color.WHITE, 1.0, false)
 	draw_circle(point, 3.0, Color.RED)
 	
-func _physics_process(delta)->void:
+func _physics_process(delta) -> void:
 	game_input()
 	
 	# Updates angular velocity and angular accleration here
