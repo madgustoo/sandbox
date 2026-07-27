@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://ywhrgmh3yd6f"]
 
 [ext_resource type="PackedScene" uid="uid://bip5rx0purm35" path="res://rope.tscn" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://chyv7k1c7lmdb" path="res://player.tscn" id="2_0xm2m"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ig7tw"]
 size = Vector2(16, 16)
@@ -8,6 +9,7 @@ size = Vector2(16, 16)
 [node name="Main" type="Node2D" unique_id=1492854815]
 
 [node name="Rope" parent="." unique_id=1216721653 instance=ExtResource("1_ig7tw")]
+collision_segment_interval = 2
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1589112360]
 zoom = Vector2(6, 6)
@@ -18,10 +20,12 @@ collision_layer = 2
 gravity_scale = 0.0
 
 [node name="Polygon2D" type="Polygon2D" parent="RigidBody2D" unique_id=828937267]
+scale = Vector2(4.7819853, 2.061587)
 color = Color(0, 0.9018693, 0.93163925, 1)
 polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D" unique_id=89358601]
+scale = Vector2(4.7797046, 2.0508025)
 shape = SubResource("RectangleShape2D_ig7tw")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=732009645]
@@ -33,3 +37,6 @@ polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1707564836]
 shape = SubResource("RectangleShape2D_ig7tw")
+
+[node name="Player" parent="." unique_id=658335506 instance=ExtResource("2_0xm2m")]
+position = Vector2(-64, -8)

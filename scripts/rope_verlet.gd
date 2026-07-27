@@ -77,7 +77,6 @@ func simulate(delta: float) -> void:
 		var rope_segment = rope_segments[i]
 		# It's that simple to get velocity, because velocity is the change of position
 		var velocity = (rope_segment.current_position - rope_segment.last_position) * dampening
- 
 		rope_segment.last_position = rope_segment.current_position
 		rope_segment.current_position += velocity
 		rope_segment.current_position += gravity * delta
@@ -97,7 +96,7 @@ func apply_constraints():
 		var current_segment = rope_segments[i]
 		var next_segment = rope_segments[i+1]
 		
-		#var distance = current_segment.current_position.distance_to(next_segment.current_position)
+		# var distance = current_segment.current_position.distance_to(next_segment.current_position)
 		var distance = (current_segment.current_position - next_segment.current_position).length()
 
 		# This is the difference our constraint fixes, because each point needs to be a certain distance apart
