@@ -40,11 +40,12 @@ func _ready() -> void:
 	set_start_position(global_position, end_position)
 	
 func process_velocity(delta: float) -> void:
-	angular_accleration = ((-gravity.y * delta) / arm_length) * sin(angle)
-	angular_velocity += angular_accleration
-	angular_velocity *= dampening
-	angle += angular_velocity
-	
+	angular_accleration = (-gravity.y * delta) / arm_length * sin(angle)
+	angular_velocity += angular_accleration * delta
+	angular_velocity *= dampening # dampening is a percentage which slows down the angular_velocity
+	angle += angular_velocity * delta
+	# angle = wrapf(angle, 0.0, TAU)
+	print("Angle: ", rad_to_deg(angle))
 	end_position = pivot_point + Vector2(arm_length * sin(angle), arm_length * cos(angle))
 	
 # To add impulse (force) to angular velocity
@@ -54,7 +55,6 @@ func add_angular_velocity(force: float) -> void:
 func game_input() -> void:
 	var direction := Input.get_axis("ui_left", "ui_right")
 	if direction:
-		print("direction: ", direction)
 		add_angular_velocity(direction * 0.02)
 
 func _draw() -> void:

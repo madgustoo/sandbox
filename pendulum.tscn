@@ -6,7 +6,7 @@
 
 [node name="Marker2D" type="Marker2D" parent="." unique_id=1817467122]
 script = ExtResource("1_l2p1o")
-end_position = Vector2(0, 40)
+end_position = Vector2(0, 80)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1496240071]
-zoom = Vector2(4, 4)
+zoom = Vector2(2, 2)

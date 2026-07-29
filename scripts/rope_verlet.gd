@@ -14,7 +14,7 @@ class RopeSegment:
 
 @export var number_of_rope_segments: int = 50 # Rope length
 @export var rope_segment_length: float = 0.225 # The distance between rope segments
-@export var gravity: Vector2 = Vector2(0, 2)
+@export var gravity: Vector2 = Vector2(0, 9.81)
 @export var dampening: float = 0.98 # To control swinging, the higher the number, the higher the system willl oscillate until stopping (loss of enegery)
  
 @export var number_of_constraint_runs = 50; # To correct the rope, you can get stability with the rope by running 20 iterations, higher means slower but more accurate
@@ -29,11 +29,20 @@ class RopeSegment:
 
 var collision_query: PhysicsShapeQueryParameters2D
 
+# Make it required with an export prop when ready
+var start_position: Vector2 = global_position
+
 var rope_segments: Array[RopeSegment] = []
 var points: PackedVector2Array
 
-func _ready() -> void:
-	var start_position := get_global_mouse_position()
+func set_start(point: Vector2) -> void:
+	points[0] = point
+
+func set_last(point: Vector2) -> void:
+	points[points.size() - 1] = point
+
+func _ready() -> void:	
+	print("start_position at: ", start_position)
 	
 	# Initialize rope segments
 	for i in range(number_of_rope_segments):
@@ -54,6 +63,11 @@ func _ready() -> void:
 	collision_query.collide_with_areas = true
 
 func _physics_process(delta: float) -> void:
+	if Input.is_action_just_pressed("click"):
+		start_position = get_global_mouse_position()
+		set_start(get_global_mouse_position())
+		print("")
+		
 	simulate(delta)
 	
 	# It's not as expensive as you think because we're not dealing with all the overhead from Godot's built-in physic components
@@ -89,7 +103,7 @@ func simulate(delta: float) -> void:
 func apply_constraints():
 	# Keep first point attached to the mouse
 	var first_rope_segment = rope_segments[0]
-	first_rope_segment.current_position = get_global_mouse_position()
+	first_rope_segment.current_position = start_position
 	
 	# (len - 1) because we're going to be looking one step ahead, skips the last point because last point doesn't have a next
 	for i in range(len(rope_segments) - 1):
