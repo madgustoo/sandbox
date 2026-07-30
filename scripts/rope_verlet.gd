@@ -29,20 +29,13 @@ class RopeSegment:
 
 var collision_query: PhysicsShapeQueryParameters2D
 
-# Make it required with an export prop when ready
-var start_position: Vector2 = global_position
+var start_position: Vector2
 
 var rope_segments: Array[RopeSegment] = []
 var points: PackedVector2Array
-
-func set_start(point: Vector2) -> void:
-	points[0] = point
-
-func set_last(point: Vector2) -> void:
-	points[points.size() - 1] = point
-
-func _ready() -> void:	
-	print("start_position at: ", start_position)
+	
+func spawn_rope() -> void:
+	print("Spawn rope at position: ", start_position)
 	
 	# Initialize rope segments
 	for i in range(number_of_rope_segments):
@@ -53,6 +46,7 @@ func _ready() -> void:
 	points.resize(number_of_rope_segments)
 	
 	# Create a collision object our rope will use
+	# Each point of our rope will have a collider
 	var collision_circle = CircleShape2D.new()
 	collision_circle.radius = collision_radius
 
@@ -62,11 +56,14 @@ func _ready() -> void:
 	collision_query.collide_with_bodies = true
 	collision_query.collide_with_areas = true
 
-func _physics_process(delta: float) -> void:
+func _physics_process(delta: float) -> void:	
 	if Input.is_action_just_pressed("click"):
 		start_position = get_global_mouse_position()
-		set_start(get_global_mouse_position())
-		print("")
+
+		if rope_segments.is_empty():
+			spawn_rope()
+	if rope_segments.is_empty():
+		return
 		
 	simulate(delta)
 	
@@ -82,6 +79,7 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 	
 func draw_rope() -> void:
+	# Update points position in the PackedVector2Array
 	for i in range(number_of_rope_segments):
 		points[i] = rope_segments[i].current_position
 	line_2d.points = points
@@ -101,7 +99,7 @@ func simulate(delta: float) -> void:
 # One pass of the constraints is not going to fully resolve or correct the rope points to where they should be, 
 # so we have to run the constraints multiple time (number_of_constraint_runs)
 func apply_constraints():
-	# Keep first point attached to the mouse
+	# Keep first point attached to start_position
 	var first_rope_segment = rope_segments[0]
 	first_rope_segment.current_position = start_position
 	
@@ -169,9 +167,11 @@ func handle_collisions() -> void:
 			rope_segment.current_position - hit_point
 		).length()
 
+		# Here, we detect if an overlap happened to push back the rope_segment's collider away from the collision object
 		if distance < collision_radius:
-			# The normal is the direction used to push the rope segment
-			# out of the collider
+			# The normal is the direction used to push the rope segment out of the collider
+			
+			# Edge case where the normal is 0
 			if normal.is_zero_approx():
 				pass
 				# Fallback method for this edge case where the normal is (0, 0)
@@ -181,9 +181,7 @@ func handle_collisions() -> void:
 					collider.global_position
 				).normalized()
 
-			# Now we actually resolve the overlap:
-			# push the segment out of the collider
-
+			# Now we actually resolve the overlap: push the segment out of the collider
 			# How much the segment overlapped with the collider
 			var depth = collision_radius - distance
 
