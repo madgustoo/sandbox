@@ -21,13 +21,15 @@ class RopeSegment:
 
 # For collision handling
 @export_flags_2d_physics var collision_mask = 1 # Where to look for collisions (detect)
-@export var collision_radius = 0.1
+@export var collision_radius = 0.28
 @export var bounce_factor = 0.1
 # @export var collection_clamp_amount = 0.1
 
 @export var collision_segment_interval = 2
 
+## To freeze rope start point
 @export var pin_start: bool = true
+## To freeze rope end point
 @export var pin_end: bool = false
 
 var start_position: Vector2
@@ -220,4 +222,4 @@ func handle_collisions() -> void:
 
 func _draw() -> void:
 	for rope_segment in rope_segments:
-		draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, 0.1)
+		draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, collision_radius)

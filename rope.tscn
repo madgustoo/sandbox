@@ -7,9 +7,9 @@ script = ExtResource("1_0756u")
 number_of_rope_segments = 100
 dampening = 0.96
 collision_mask = 2
-collision_segment_interval = 1
 pin_end = true
 
 [node name="Line2D" type="Line2D" parent="." unique_id=552446880]
+z_index = -1
 width = 0.5
 default_color = Color(1, 0.5137255, 1, 1)
