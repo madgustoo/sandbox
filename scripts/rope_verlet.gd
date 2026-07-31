@@ -27,22 +27,35 @@ class RopeSegment:
 
 @export var collision_segment_interval = 2
 
-var collision_query: PhysicsShapeQueryParameters2D
+@export var pin_start: bool = true
+@export var pin_end: bool = false
 
 var start_position: Vector2
+# Technically the last end position, not the current one when the rope moves
+var end_position: Vector2
 
 var rope_segments: Array[RopeSegment] = []
 var points: PackedVector2Array
-	
+var collision_query: PhysicsShapeQueryParameters2D
+
 func spawn_rope() -> void:
-	print("Spawn rope at position: ", start_position)
+	if rope_segments:
+		# Keep track of (last) end_position
+		end_position = rope_segments[number_of_rope_segments - 1].current_position
 	
+	rope_segments.clear()
+	points.clear()
+	
+	print("Spawn rope at start position: ", start_position)
+	print("Rope ends at end position: ", end_position)
+		
+	var temp_start_position = start_position
 	# Initialize rope segments
 	for i in range(number_of_rope_segments):
-		rope_segments.append(RopeSegment.new(start_position)) 
-		start_position.y += rope_segment_length
-		
-	# Because it's an array, we have to set the size beforehand
+		rope_segments.append(RopeSegment.new(temp_start_position)) 
+		temp_start_position.y += rope_segment_length
+					
+	# Because it's a fixed array, we have to set the size beforehand
 	points.resize(number_of_rope_segments)
 	
 	# Create a collision object our rope will use
@@ -56,12 +69,11 @@ func spawn_rope() -> void:
 	collision_query.collide_with_bodies = true
 	collision_query.collide_with_areas = true
 
-func _physics_process(delta: float) -> void:	
+func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("click"):
 		start_position = get_global_mouse_position()
-
-		if rope_segments.is_empty():
-			spawn_rope()
+		spawn_rope()
+			
 	if rope_segments.is_empty():
 		return
 		
@@ -70,7 +82,6 @@ func _physics_process(delta: float) -> void:
 	# It's not as expensive as you think because we're not dealing with all the overhead from Godot's built-in physic components
 	for i in range(number_of_constraint_runs):
 		apply_constraints()
-		
 		# For a bit of optimization, we can run it every segment interval
 		if i % collision_segment_interval == 0:
 			handle_collisions()
@@ -86,6 +97,10 @@ func draw_rope() -> void:
 
 func simulate(delta: float) -> void:
 	for i in range(number_of_rope_segments):
+		# Run the simulation for all points EXCEPT the first and last one if they are pinned
+		if (i == 0 && pin_start) || (i == number_of_rope_segments - 1 && pin_end) || (i == number_of_rope_segments - 1 && pin_end):
+			continue
+
 		var rope_segment = rope_segments[i]
 		# It's that simple to get velocity, because velocity is the change of position
 		var velocity = (rope_segment.current_position - rope_segment.last_position) * dampening
@@ -98,15 +113,22 @@ func simulate(delta: float) -> void:
 # which affects the next one and the changes propagate down the chain. 
 # One pass of the constraints is not going to fully resolve or correct the rope points to where they should be, 
 # so we have to run the constraints multiple time (number_of_constraint_runs)
-func apply_constraints():
-	# Keep first point attached to start_position
-	var first_rope_segment = rope_segments[0]
-	first_rope_segment.current_position = start_position
-	
-	# (len - 1) because we're going to be looking one step ahead, skips the last point because last point doesn't have a next
-	for i in range(len(rope_segments) - 1):
+func apply_constraints() -> void:
+	# Keep first point attached to start_position if pin_start is true
+	if pin_start:
+		rope_segments[0].current_position = start_position
+		
+	# Keep last point attached to end_position if pin_end is true
+	if pin_end:
+		rope_segments[number_of_rope_segments - 1].current_position = end_position
+		
+	for i in range(number_of_rope_segments):
+		# Because we're going to be looking one step ahead, skips the last point because last point doesn't have a next
+		if i == number_of_rope_segments - 1:
+			return
+			
 		var current_segment = rope_segments[i]
-		var next_segment = rope_segments[i+1]
+		var next_segment = rope_segments[i + 1]
 		
 		# var distance = current_segment.current_position.distance_to(next_segment.current_position)
 		var distance = (current_segment.current_position - next_segment.current_position).length()
@@ -121,18 +143,18 @@ func apply_constraints():
 		var change_direction = (current_segment.current_position - next_segment.current_position).normalized()
 		var change_vector = change_direction * difference
 		
-		if (i != 0):
+		if i == 0 && pin_start:
+			# For first point, the next segment takes the full correction if the first point is pinned, we don't split the correction
+			next_segment.current_position += change_vector
+		elif i + 1 == number_of_rope_segments - 1 && pin_end:
+			# We check one step ahead here to check the last point, the full correction is applied to the last point if it's pinned
+			current_segment.current_position -= change_vector
+		else:
 			# We split the correction between the two segments we're comparing
 			# Substract the current segment by half of our change vector, and add the 
 			# half to the next segment which makes up the full correction amount
 			current_segment.current_position -= change_vector * 0.5
 			next_segment.current_position += change_vector * 0.5
-		else:
-			# First point we don't split the correction, we apply the full correction to the next segment
-			next_segment.current_position += change_vector
-		
-			rope_segments[i] = current_segment
-			rope_segments[i+1] = next_segment
 		
 func handle_collisions() -> void:
 	# space_state is used to query collisions
@@ -143,8 +165,7 @@ func handle_collisions() -> void:
 		var rope_segment = rope_segments[i]
 		var velocity = rope_segment.current_position - rope_segment.last_position
 
-		# Position the collision query over the rope segment to check whether
-		# the segment overlaps another physics object
+		# Position the collision query over the rope segment to check whether the segment overlaps another physics object
 		collision_query.transform = Transform2D(
 			0.0,
 			rope_segment.current_position
@@ -197,6 +218,6 @@ func handle_collisions() -> void:
 			rope_segment.current_position - velocity
 		)
 
-#func _draw() -> void:
-	#for rope_segment in rope_segments:
-		#draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, 1.0)
+func _draw() -> void:
+	for rope_segment in rope_segments:
+		draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, 0.1)
