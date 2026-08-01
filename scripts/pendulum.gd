@@ -2,15 +2,15 @@ extends Node2D
 
 class_name Pendulum
 
+@export var gravity: Vector2 = Vector2(0, 9.81)
+## To control swinging, the higher the number, the higher the system willl oscillate until stopping (loss of enegery)
+@export var dampening: float = 0.98 
 @export var end_position: Vector2 # The end of the rope
 
 var pivot_point: Vector2 # Point the pendulum rotates around
 var arm_length: float # Distance from pivoit_point to end_position
 
 var angle # The angle from the pivot point to which direction it's pointing
-
-@export var gravity: Vector2 = Vector2(0, 2)
-@export var dampening: float = 0.98 # To control swinging, the higher the number, the higher the system willl oscillate until stopping (loss of enegery)
 
 var angular_velocity = 0.0
 var angular_accleration = 0.0
@@ -40,12 +40,15 @@ func _ready() -> void:
 	set_start_position(global_position, end_position)
 	
 func process_velocity(delta: float) -> void:
-	angular_accleration = (-gravity.y * delta) / arm_length * sin(angle)
+	angular_accleration = -(gravity.y * sin(angle)) / arm_length
+		
+	# Integrating accleration into velocity
 	angular_velocity += angular_accleration * delta
-	angular_velocity *= dampening # dampening is a percentage which slows down the angular_velocity
-	angle += angular_velocity * delta
-	# angle = wrapf(angle, 0.0, TAU)
-	print("Angle: ", rad_to_deg(angle))
+	angular_velocity *= dampening
+	
+	angle += angular_velocity
+	
+	# Position of the object at the end of the pendulum
 	end_position = pivot_point + Vector2(arm_length * sin(angle), arm_length * cos(angle))
 	
 # To add impulse (force) to angular velocity
@@ -53,14 +56,17 @@ func add_angular_velocity(force: float) -> void:
 	angular_velocity += force
 	
 func game_input() -> void:
-	var direction := Input.get_axis("ui_left", "ui_right")
-	if direction:
-		add_angular_velocity(direction * 0.02)
+	var direction = 0
+	if Input.is_action_just_pressed("ui_right"):
+		direction = 1
+	elif Input.is_action_just_pressed("ui_left"):
+		direction = -1
+	add_angular_velocity(direction * 0.02)
 
 func _draw() -> void:
 	var point := end_position - pivot_point
 	draw_line(Vector2.ZERO, point, Color.WHITE, 1.0, false)
-	draw_circle(point, 3.0, Color.RED)
+	draw_circle(point, 3.0, Color.SEA_GREEN)
 	
 func _physics_process(delta) -> void:
 	game_input()
