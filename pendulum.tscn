@@ -5,8 +5,9 @@
 [node name="Pendulum" type="Node2D" unique_id=1922001521]
 
 [node name="Marker2D" type="Marker2D" parent="." unique_id=1817467122]
+position = Vector2(0, -29)
 script = ExtResource("1_l2p1o")
-end_position = Vector2(0, 80)
+end_position = Vector2(0, 60)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1496240071]
-zoom = Vector2(2, 2)
+zoom = Vector2(4, 4)
