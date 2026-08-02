@@ -1,19 +1,41 @@
 [gd_scene format=3 uid="uid://chyv7k1c7lmdb"]
 
 [ext_resource type="Script" uid="uid://c54bji78jexxx" path="res://scripts/player.gd" id="1_4flbx"]
+[ext_resource type="Texture2D" uid="uid://jq4hp36v4v37" path="res://icon.svg" id="2_onrkg"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_nkch5"]
 
 [node name="Player" type="CharacterBody2D" unique_id=658335506]
-scale = Vector2(0.6611312, 0.6723025)
+scale = Vector2(0.52032834, 0.52912045)
 collision_mask = 3
 script = ExtResource("1_4flbx")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1239074884]
-scale = Vector2(0.7809175, 0.7809175)
+rotation = 3.1415927
+scale = Vector2(0.41655847, 0.56158715)
 shape = SubResource("CapsuleShape2D_nkch5")
 
 [node name="Polygon2D" type="Polygon2D" parent="." unique_id=1015430021]
 position = Vector2(0, -4)
+scale = Vector2(0.57317257, 0.7701567)
 color = Color(0.5254902, 1, 1, 1)
 polygon = PackedVector2Array(-8, -8, 8, -8, 8, 16, -8, 16)
+
+[node name="Arm" type="Node2D" parent="." unique_id=1402634945]
+rotation = 1.5707964
+
+[node name="Shooter" type="Marker2D" parent="Arm" unique_id=1399963303]
+position = Vector2(0, -20.018944)
+
+[node name="Crossair" type="Sprite2D" parent="Arm" unique_id=172097675]
+position = Vector2(0, -20.01892)
+scale = Vector2(0.036117658, 0.036117658)
+texture = ExtResource("2_onrkg")
+
+[node name="RayCast2D" type="RayCast2D" parent="Arm" unique_id=1865297060]
+visible = false
+position = Vector2(0, -20.789219)
+target_position = Vector2(0, -120)
+collision_mask = 2
+hit_from_inside = true
+collide_with_areas = true

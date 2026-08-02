@@ -9,7 +9,7 @@ size = Vector2(16, 16)
 [node name="Main" type="Node2D" unique_id=1492854815]
 
 [node name="Rope" parent="." unique_id=1216721653 instance=ExtResource("1_ig7tw")]
-collision_segment_interval = 2
+pin_start = true
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1589112360]
 zoom = Vector2(6, 6)
@@ -29,7 +29,8 @@ scale = Vector2(4.7797046, 2.0508025)
 shape = SubResource("RectangleShape2D_ig7tw")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=732009645]
-position = Vector2(-40, -24)
+position = Vector2(40, -40)
+collision_layer = 2
 
 [node name="Polygon2D" type="Polygon2D" parent="Area2D" unique_id=2003686609]
 color = Color(0.6924595, 0.0023838198, 0.9089485, 1)

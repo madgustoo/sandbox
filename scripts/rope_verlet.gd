@@ -27,24 +27,28 @@ class RopeSegment:
 
 @export var collision_segment_interval = 2
 
-## To freeze rope start point
+## To freeze rope start point. The start point is where the rope hits
 @export var pin_start: bool = true
-## To freeze rope end point
+## To freeze rope end point. The end point is the point it spawns out from
 @export var pin_end: bool = false
 
 var start_position: Vector2
-# Technically the last end position, not the current one when the rope moves
 var end_position: Vector2
 
 var rope_segments: Array[RopeSegment] = []
 var points: PackedVector2Array
 var collision_query: PhysicsShapeQueryParameters2D
 
-func spawn_rope() -> void:
-	if rope_segments:
-		# Keep track of (last) end_position
-		end_position = rope_segments[number_of_rope_segments - 1].current_position
-	
+func create(start: Vector2, end: Vector2) -> void:
+	start_position = start
+	end_position = end
+	number_of_rope_segments = get_number_of_rope_segments()
+	spawn_rope()
+
+func get_number_of_rope_segments():
+	return ceili(start_position.distance_to(end_position) / rope_segment_length)
+
+func spawn_rope() -> void:	
 	rope_segments.clear()
 	points.clear()
 	
@@ -52,7 +56,6 @@ func spawn_rope() -> void:
 	print("Rope ends at end position: ", end_position)
 		
 	var temp_start_position = start_position
-	# Initialize rope segments
 	for i in range(number_of_rope_segments):
 		rope_segments.append(RopeSegment.new(temp_start_position)) 
 		temp_start_position.y += rope_segment_length
@@ -72,10 +75,6 @@ func spawn_rope() -> void:
 	collision_query.collide_with_areas = true
 
 func _physics_process(delta: float) -> void:
-	if Input.is_action_just_pressed("click"):
-		start_position = get_global_mouse_position()
-		spawn_rope()
-			
 	if rope_segments.is_empty():
 		return
 		
@@ -89,7 +88,7 @@ func _physics_process(delta: float) -> void:
 			handle_collisions()
 		
 	draw_rope()
-	queue_redraw()
+	# queue_redraw()
 	
 func draw_rope() -> void:
 	# Update points position in the PackedVector2Array
@@ -220,6 +219,6 @@ func handle_collisions() -> void:
 			rope_segment.current_position - velocity
 		)
 
-func _draw() -> void:
-	for rope_segment in rope_segments:
-		draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, collision_radius)
+# func _draw() -> void:
+	# for rope_segment in rope_segments:
+		# draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, collision_radius)
