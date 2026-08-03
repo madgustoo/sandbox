@@ -39,11 +39,15 @@ var rope_segments: Array[RopeSegment] = []
 var points: PackedVector2Array
 var collision_query: PhysicsShapeQueryParameters2D
 
-func create(start: Vector2, end: Vector2) -> void:
+func _try_spawn(start: Vector2, end: Vector2) -> void:
 	start_position = start
 	end_position = end
 	number_of_rope_segments = get_number_of_rope_segments()
+	print("Spawning a rope with %d rope segments" % number_of_rope_segments)
 	spawn_rope()
+	
+func set_end_position(end: Vector2):
+	end_position = end
 
 func get_number_of_rope_segments():
 	return ceili(start_position.distance_to(end_position) / rope_segment_length)
@@ -51,9 +55,6 @@ func get_number_of_rope_segments():
 func spawn_rope() -> void:	
 	rope_segments.clear()
 	points.clear()
-	
-	print("Spawn rope at start position: ", start_position)
-	print("Rope ends at end position: ", end_position)
 		
 	var temp_start_position = start_position
 	for i in range(number_of_rope_segments):
@@ -88,7 +89,7 @@ func _physics_process(delta: float) -> void:
 			handle_collisions()
 		
 	draw_rope()
-	# queue_redraw()
+	queue_redraw()
 	
 func draw_rope() -> void:
 	# Update points position in the PackedVector2Array
@@ -219,6 +220,6 @@ func handle_collisions() -> void:
 			rope_segment.current_position - velocity
 		)
 
-# func _draw() -> void:
-	# for rope_segment in rope_segments:
-		# draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, collision_radius)
+func _draw() -> void:
+	for rope_segment in rope_segments:
+		draw_circle(to_local(rope_segment.current_position), collision_radius, Color.GREEN, false, collision_radius)

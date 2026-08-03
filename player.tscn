@@ -5,6 +5,9 @@
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_nkch5"]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_t0g5c"]
+radius = 2.0
+
 [node name="Player" type="CharacterBody2D" unique_id=658335506]
 scale = Vector2(0.52032834, 0.52912045)
 collision_mask = 3
@@ -24,17 +27,25 @@ polygon = PackedVector2Array(-8, -8, 8, -8, 8, 16, -8, 16)
 [node name="Arm" type="Node2D" parent="." unique_id=1402634945]
 rotation = 1.5707964
 
-[node name="Shooter" type="Marker2D" parent="Arm" unique_id=1399963303]
-position = Vector2(0, -20.018944)
+[node name="Crossair" type="Node2D" parent="Arm" unique_id=1794078842]
 
-[node name="Crossair" type="Sprite2D" parent="Arm" unique_id=172097675]
-position = Vector2(0, -20.01892)
-scale = Vector2(0.036117658, 0.036117658)
+[node name="Shooter" type="Marker2D" parent="Arm/Crossair" unique_id=1399963303]
+position = Vector2(1.1368684e-13, -30.749813)
+
+[node name="Sprite2D" type="Sprite2D" parent="Arm/Crossair" unique_id=172097675]
+position = Vector2(1.1368684e-13, -31.55011)
+scale = Vector2(0.03611766, 0.036117658)
 texture = ExtResource("2_onrkg")
 
-[node name="RayCast2D" type="RayCast2D" parent="Arm" unique_id=1865297060]
+[node name="ShapeCast2D" type="ShapeCast2D" parent="Arm/Crossair" unique_id=1794398219]
 visible = false
-position = Vector2(0, -20.789219)
+position = Vector2(-1.3441171e-06, -30.749815)
+shape = SubResource("CircleShape2D_t0g5c")
+target_position = Vector2(0, -8)
+
+[node name="RayCast2D" type="RayCast2D" parent="Arm/Crossair" unique_id=1865297060]
+visible = false
+position = Vector2(0, -32.3204)
 target_position = Vector2(0, -120)
 collision_mask = 2
 hit_from_inside = true

@@ -70,7 +70,6 @@ func _draw() -> void:
 	
 func _physics_process(delta) -> void:
 	game_input()
-	
 	# Updates angular velocity and angular accleration here
 	process_velocity(delta)
 	
