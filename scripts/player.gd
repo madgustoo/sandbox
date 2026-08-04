@@ -13,6 +13,7 @@ class_name Player
 
 # Where projectiles spawn out from
 @onready var shooter: Marker2D = $Arm/Crossair/Shooter
+@onready var sprite_2d: Sprite2D = $Arm/Crossair/Sprite2D
 
 var rope_verlet = preload("res://rope.tscn")
 
@@ -21,6 +22,7 @@ var rope: RopeVerlet
 
 enum State {
 	NORMAL,
+	JUMPING,
 	SWINGING
 }
 
@@ -46,29 +48,32 @@ func _physics_process(delta: float) -> void:
 				velocity.x = direction * speed
 			else:
 				velocity.x = move_toward(velocity.x, 0, speed)
-				
 			if Input.is_action_just_pressed("jump"):
+				state = State.JUMPING
 				velocity.y -= jump
-
-			if Input.is_action_just_pressed("click"):
-				try_swing()
+		State.JUMPING:
+			if is_on_floor():
+				state = State.NORMAL
 		State.SWINGING:
-			if Input.is_action_just_released("click"):
-				try_swing()
-				
-			if Input.is_action_pressed("click"):
-				if rope:
-					rope.set_end_position(shooter.global_position)
+			velocity.x = 0
+			pass
+	
+	if Input.is_action_just_pressed("click") || Input.is_action_just_released("click"):
+		try_swing()
+	
+	# Hold rope
+	if Input.is_action_pressed("click"):
+		if rope:
+			rope.set_end_position(shooter.global_position)
 			
 	# Update shooter aim
 	var aim_direction = (get_global_mouse_position() - arm.global_position).normalized()
 	arm.rotation = aim_direction.angle() + PI/2
-	
-	# var angle = (get_global_mouse_position() - arm.global_position).angle()
-	
+		
 	if get_global_mouse_position().distance_to(arm.global_position) < radius:
 		# Can move freely, so at this range, the shooter now has the same global position as the cursor
 		shooter.global_position = get_global_mouse_position()
+		sprite_2d.global_position = get_global_mouse_position()
 	#else:
 		#crossair.global_position = Vector2(radius * cos(angle), radius * sin(angle))
 	

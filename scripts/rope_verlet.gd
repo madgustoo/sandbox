@@ -14,7 +14,7 @@ class RopeSegment:
 
 @export var number_of_rope_segments: int = 50 # Rope length
 @export var rope_segment_length: float = 0.225 # The distance between rope segments
-@export var gravity: Vector2 = Vector2(0, 9.81)
+@export var gravity: Vector2 = Vector2(0, 9)
 @export var dampening: float = 0.98 # To control swinging, the higher the number, the higher the system willl oscillate until stopping (loss of enegery)
  
 @export var number_of_constraint_runs = 50; # To correct the rope, you can get stability with the rope by running 20 iterations, higher means slower but more accurate
@@ -25,6 +25,7 @@ class RopeSegment:
 @export var bounce_factor = 0.1
 # @export var collection_clamp_amount = 0.1
 
+# For collision detection, checks it every (number_of_constraint_runs % collision_segment_interval) time
 @export var collision_segment_interval = 2
 
 ## To freeze rope start point. The start point is where the rope hits
